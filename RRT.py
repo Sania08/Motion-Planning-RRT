@@ -11,7 +11,7 @@ def dist_cal(x1,y1,x2,y2):
     dist=abs(math.sqrt(((x1-x2)**2)+((y1-y2)**2)))
     return dist
 
-#TO FIND A POINT THAT IS AT A DISTANCE d FROM THE NODE AND ALONG THE LINEJOINING THE RANDOM POINT AND THE NODE
+#TO FIND A POINT THAT IS AT A DISTANCE d FROM THE NODE AND ALONG THE LINE JOINING THE RANDOM POINT AND THE NODE
 def point_finder(a1,b1,a2,b2,d): 
     m=(b2-b1)/(a2-a1)
     x1= (d/math.sqrt(1+m**2))+a1
@@ -22,17 +22,16 @@ def point_finder(a1,b1,a2,b2,d):
     d1=dist_cal(a2,b2,x1,y1)
     d2=dist_cal(a2,b2,x2,y2)
     if d1<ran_dist:
-        x=x1
-        y=y1
+        x,y=x1,y1
+        #y=y1
     else:
-        x=x2
-        y=y2
+        x,y=x2,y2
+        #y=y2
     #print(x,y)
     return int(x),int(y)
 
 #AVOID COLLISION
 def collision_avoider(gmap,h1,k1,h2,k2):
-    r=3
     g= True
     #LINEAR INTERPOLATION
     for i in range(1,20):
@@ -50,14 +49,13 @@ def collision_avoider(gmap,h1,k1,h2,k2):
 def first_node(image,colour_image,x_start,y_start):
     global nodes, parents,parents_dict
     shape=image.shape
-    node_init=np.random.randint(0, [shape[1], shape[0]])
+    node_init,_=initializer(1)
     
     if image[node_init[1],node_init[0]] == 254:
         node_x,node_y = point_finder(x_start,y_start,node_init[0],node_init[1],20)
         cv2.line(colour_image,(x_start,y_start),(node_x,node_y),(255,0,0),1)
         cv2.circle(colour_image,(node_x,node_y),3 , (0,0,255), 1)
-        node_init_array=np.array([[node_x,node_y]])
-        nodes=np.concatenate((nodes, node_init_array), axis=0)
+        nodes=np.concatenate((nodes, np.array([[node_x,node_y]])), axis=0)
         parents=np.concatenate((parents, np.array([[x_start,y_start]])), axis=0)
 
     else:
@@ -89,10 +87,9 @@ def new_node(map,colour_map,n,g_x,g_y):
         x_close,y_close= closest_finder(node[0],node[1])
         if x_close != node[0]: #TO AVOID INFINITE SLOPE
             node_fin_x,node_fin_y=point_finder(x_close,y_close,node[0],node[1],20)
-            print("nodes are",node_fin_x,node_fin_y)
+
             if x_close-node_fin_x!=0:
                 if collision_avoider(map,x_close,y_close,node_fin_x,node_fin_y)==True:
-                    print("hi")
                     if map[node_fin_y,node_fin_x] ==254: #TO CHECK IF THE POINT IS UNOCCUPIED
                         g_dist=dist_cal(g_x,g_y,node_fin_x,node_fin_y)
                         if g_dist< 25:
@@ -100,17 +97,14 @@ def new_node(map,colour_map,n,g_x,g_y):
                             cv2.line(colour_map,(g_x,g_y),(node_fin_x,node_fin_y),(255,0,0),1)
                             cv2.circle(colour_map,(node_fin_x,node_fin_y),3 , (0,0,255), 1)
                             cv2.line(colour_map,(x_close,y_close),(node_fin_x,node_fin_y),(255,0,0),1)
-                            nodes=np.concatenate((nodes, np.array([[node_fin_x,node_fin_y]])), axis=0)
-                            parents=np.concatenate((parents, np.array([[x_close,y_close]])), axis=0)
-                            nodes=np.concatenate((nodes, np.array([[g_x,g_y]])), axis=0)
-                            parents=np.concatenate((parents, np.array([[node_fin_x,node_fin_y]])), axis=0)
+                            nodes=np.concatenate((nodes, np.array([[node_fin_x,node_fin_y]]),np.array([[g_x,g_y]])), axis=0)
+                            parents=np.concatenate((parents, np.array([[x_close,y_close]]),np.array([[node_fin_x,node_fin_y]])), axis=0)
                             print("Hurray goal reached!!!")
                             break
                         else:
                             cv2.circle(colour_map,(node_fin_x,node_fin_y),3 , (0,0,255), 1)
                             cv2.line(colour_map,(x_close,y_close),(node_fin_x,node_fin_y),(255,0,0),1)        
-                            node_array=np.array([[node_fin_x,node_fin_y]])
-                            nodes=np.concatenate((nodes, node_array), axis=0)
+                            nodes=np.concatenate((nodes, np.array([[node_fin_x,node_fin_y]])), axis=0)
                             parents=np.concatenate((parents, np.array([[x_close,y_close]])), axis=0)
                             i=i+1
 def final_path(path_map):
@@ -126,10 +120,10 @@ def final_path(path_map):
         cv2.line(path_map,(m,n),(z[0][0],z[0][1]),(255,0,0),1)
         m=z[0][0]
         n=z[0][1]
-        print("path is",path)
+
         path=np.concatenate((path, np.array([[m,n]])), axis=0)
         if (m==begin_x) & (n==begin_y):
-            print("break ho gaya")
+
             cv2.circle(path_map,(m,n),3 , (0,255,0), 1)
             break
  
@@ -155,16 +149,18 @@ def main():
     goal_x=int(input("enter x coordiante of goal position:"))
     goal_y=int(input("enter y coordiante of goal position:"))    
     cv2.circle(colour_img,(goal_x,goal_y),3 , (0,255,0), 1)
-
-    node_list=np.array([[begin_x,begin_y]])
     parents =np.array([[begin_x,begin_y]])
     #INITIALIZING FIRST RANDOM NODE
     first_node(img,colour_img,begin_x,begin_y)
     number=350
+
+    #RRT exploration tree
     new_node(img,colour_img,number,goal_x,goal_y)
+
+    #Path found
     final_path(path_img)
     Hori = np.concatenate((colour_img,path_img), axis=1)
-    cv2.imshow("RRT",Hori)
+    cv2.imshow("RRT Algorithm",Hori)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
