@@ -13,6 +13,6 @@
 </p>
 
 <p align="center">
-<img src="https://user-images.githubusercontent.com/64685403/142718429-f2f5bedd-5a9a-4485-ac5e-1ae10933612f.gif">
+<img src="https://user-images.githubusercontent.com/64685403/142722682-fbd967b1-7ea0-46df-8b13-96820912c3db.gif">
 </p>
 
