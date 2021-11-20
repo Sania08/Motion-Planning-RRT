@@ -70,6 +70,7 @@ def find_closest(c,d):
     z=nodes[p]
     return z[0][0],z[0][1]
 
+#RANDOM SAMPLING
 def initializer(h):
     init=np.random.randint([0,0],[360,830])
     return init,h 
@@ -104,6 +105,8 @@ def new_node(map,colour_map,n,g_x,g_y):
                             nodes=np.concatenate((nodes, np.array([[node_fin_x,node_fin_y]])), axis=0)
                             parents=np.concatenate((parents, np.array([[x_close,y_close]])), axis=0)
                             i=i+1
+                            
+#RETRIEVE THE FINAL PATH FROM THE TREE
 def final_path(path_map):
     global nodes,parents,goal_x,goal_y,begin_x,begin_y
 
@@ -137,7 +140,7 @@ def main():
 
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     
-    #ADD GAUSSIAN BLUR TO THE MAP
+    #ADD GAUSSIAN BLUR TO THE MAP TO MAINTAIN SAFE DISTANCE FROM THE OBSTACLES
     img = cv2.GaussianBlur(img,(23,23),cv2.BORDER_DEFAULT)
 
     #START LOCATION
