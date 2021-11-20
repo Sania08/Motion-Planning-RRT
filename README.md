@@ -29,3 +29,4 @@ I have previously worked on this robot hence I used the same robot to test the a
 * Run ```rosrun sahayak_mapping  odom-pub.py```
 * Add the ```RRT_ros.py``` to the sahayak_navigation/src folder
 * Run ```rosrun sahayak_navigation RRT_ros.py``` 
+* Use ```2D Nav Goal in RVIZ``` to give a goal to Sahayak.
