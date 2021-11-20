@@ -26,7 +26,7 @@ I have implemented the RRT Algorithm on a .pgm file of a 2D occupancy grid map g
 
 ## 2. RRT Algorithm on Sahayak
 I have implemented the RRT Algorithm using Sahayak as a base robot.
-I have previously worked on this robot hence I used the same robot to test the algorithm.
+I have previously worked on it hence I used the same robot as a base to test the algorithm.
 
 ### To run the code:
 * Build the Sahayak Robot as per the instructions given in [GitHub Repository](https://github.com/IvLabs/Sahayak-v3). 
@@ -35,3 +35,17 @@ I have previously worked on this robot hence I used the same robot to test the a
 * Add the ```RRT_ros.py``` to the sahayak_navigation/src folder
 * Run ```rosrun sahayak_navigation RRT_ros.py``` 
 * Use ```2D Nav Goal in RVIZ``` to give a goal to Sahayak.
+
+
+### Results:
+
+<p align="center">
+<img src="https://user-images.githubusercontent.com/64685403/142733159-deda4435-384a-4586-85f5-170026f1efe2.png" width="800">
+</p>
+
+<p align="center">
+<img src="https://user-images.githubusercontent.com/64685403/142733356-b7c60d97-8980-4033-bc37-33b8b41bcc2c.gif" width="600">
+</p>
+
+
+
