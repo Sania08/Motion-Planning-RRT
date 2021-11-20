@@ -137,7 +137,7 @@ def main():
 
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     
-    #ADD GAUSSIAN BLUR TO THE MAP
+    #ADD GAUSSIAN BLUR TO THE MAP TO MAINTAIN SAFE DISTANCE FROM OBSTACLES
     img = cv2.GaussianBlur(img,(23,23),cv2.BORDER_DEFAULT)
 
     #START LOCATION
