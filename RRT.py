@@ -71,7 +71,7 @@ def find_closest(c,d):
     return z[0][0],z[0][1]
 
 def initializer(h):
-    init=np.random.randint([0,0],[404,830])
+    init=np.random.randint([0,0],[360,830])
     return init,h 
 
 
@@ -141,14 +141,14 @@ def main():
     img = cv2.GaussianBlur(img,(23,23),cv2.BORDER_DEFAULT)
 
     #START LOCATION
-    begin_x=int(input("enter x coordiante of start position:"))
-    begin_y=int(input("enter y coordiante of start position:"))
+    begin_x=int(input("enter x coordinate of start position:"))
+    begin_y=int(input("enter y coordinate of start position:"))
     nodes=np.array([[begin_x,begin_y]])
     cv2.circle(colour_img,(begin_x,begin_y),3 , (0,0,255), 1)
 
     #GOAL LOCATION
-    goal_x=int(input("enter x coordiante of goal position:"))
-    goal_y=int(input("enter y coordiante of goal position:"))    
+    goal_x=int(input("enter x coordinate of goal position:"))
+    goal_y=int(input("enter y coordinate of goal position:"))    
     cv2.circle(colour_img,(goal_x,goal_y),7 , (0,255,0), 3)
     parents =np.array([[begin_x,begin_y]])
 
