@@ -1,6 +1,9 @@
 # Motion-Planning-RRT
 
-* I have implemented the RRT Algorithm on a .pgm file of a 2D occupancy grid map generated using [Hector-SLAM](http://wiki.ros.org/hector_slam)
+## Implementations
+
+## 1. RRT Algorithm on a .pgm file
+I have implemented the RRT Algorithm on a .pgm file of a 2D occupancy grid map generated using [Hector-SLAM](http://wiki.ros.org/hector_slam)
 
 ### To run the code:
 * In the file ``` RRT.py``` change the path to the .pgm file of the map in the lines 131,132,133 according to your system. 
