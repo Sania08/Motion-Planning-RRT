@@ -1,12 +1,11 @@
 #! /usr/bin/env python3
 
-#This code where I am changing the collision avoider condition by using linear interpolation and working successfully
-
 import matplotlib.pyplot as plt
 import numpy as np
 import cv2
 import math 
 
+#TO CALCULATE DISTANCE BETWEEN TWO POINTS
 def dist_cal(x1,y1,x2,y2):
     dist=abs(math.sqrt(((x1-x2)**2)+((y1-y2)**2)))
     return dist
@@ -29,7 +28,7 @@ def find_point(a1,b1,a2,b2,d):
     return int(x),int(y)
 
 #AVOID COLLISION
-def collision_avoider(gmap,h1,k1,h2,k2):
+def collision_avoidance(gmap,h1,k1,h2,k2):
     g= True
     #LINEAR INTERPOLATION
     for i in range(1,20):
@@ -60,7 +59,7 @@ def first_node(image,colour_image,x_start,y_start):
         first_node(image,colour_image,x_start,y_start)
 
 #FIND A NODE IN THE EXISTING TREE WHICH IS CLOSEST TO THE RANDOM POINT
-def closest_finder(c,d):
+def find_closest(c,d):
     global nodes
     N_c=np.array([c,d])
     d=nodes-N_c
@@ -82,12 +81,12 @@ def new_node(map,colour_map,n,g_x,g_y):
     shape=map.shape
     while i<n+1:
         node,l=initializer(i)        
-        x_close,y_close= closest_finder(node[0],node[1])
+        x_close,y_close= find_closest(node[0],node[1])
         if x_close != node[0]: #TO AVOID INFINITE SLOPE
             node_fin_x,node_fin_y=find_point(x_close,y_close,node[0],node[1],20)
 
             if x_close-node_fin_x!=0:
-                if collision_avoider(map,x_close,y_close,node_fin_x,node_fin_y)==True:
+                if collision_avoidance(map,x_close,y_close,node_fin_x,node_fin_y)==True:
                     if map[node_fin_y,node_fin_x] ==254: #TO CHECK IF THE POINT IS UNOCCUPIED
                         g_dist=dist_cal(g_x,g_y,node_fin_x,node_fin_y)
                         if g_dist< 25:
@@ -122,7 +121,7 @@ def final_path(path_map):
         path=np.concatenate((path, np.array([[m,n]])), axis=0)
         if (m==begin_x) & (n==begin_y):
 
-            cv2.circle(path_map,(m,n),3 , (0,255,0), 1)
+            cv2.circle(path_map,(m,n),7 , (0,255,0), 3)
             break
  
 def main():
@@ -130,14 +129,17 @@ def main():
 
     #LOADING THE MAP
     img = cv2.imread("/home/sania/catkin_ws/src/Sahayak-v3/sahayak_navigation/src/new_map.pgm")
-    img = img[1218:2050,1470:1843]
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     colour_img= cv2.imread("/home/sania/catkin_ws/src/Sahayak-v3/sahayak_navigation/src/new_map.pgm")
-    colour_img = colour_img[1218:2050,1470:1843]
     path_img=cv2.imread("/home/sania/catkin_ws/src/Sahayak-v3/sahayak_navigation/src/new_map.pgm")
+    img = img[1218:2050,1470:1843]
+    colour_img = colour_img[1218:2050,1470:1843]
     path_img=path_img[1218:2050,1470:1843]
+
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     
+    #ADD GAUSSIAN BLUR TO THE MAP
     img = cv2.GaussianBlur(img,(23,23),cv2.BORDER_DEFAULT)
+
     #START LOCATION
     begin_x=int(input("enter x coordiante of start position:"))
     begin_y=int(input("enter y coordiante of start position:"))
@@ -147,8 +149,9 @@ def main():
     #GOAL LOCATION
     goal_x=int(input("enter x coordiante of goal position:"))
     goal_y=int(input("enter y coordiante of goal position:"))    
-    cv2.circle(colour_img,(goal_x,goal_y),3 , (0,255,0), 1)
+    cv2.circle(colour_img,(goal_x,goal_y),7 , (0,255,0), 3)
     parents =np.array([[begin_x,begin_y]])
+
     #INITIALIZING FIRST RANDOM NODE
     first_node(img,colour_img,begin_x,begin_y)
     number=700
