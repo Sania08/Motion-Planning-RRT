@@ -1,5 +1,10 @@
 # Motion-Planning-RRT
 
+## Environment
+<p align="center">
+<img src="https://user-images.githubusercontent.com/64685403/142732461-619aae52-417f-4a92-95db-b18cb9ffc288.png">
+</p>
+
 ## Implementations
 
 ## 1. RRT Algorithm on a .pgm file
