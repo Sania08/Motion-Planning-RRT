@@ -17,15 +17,22 @@ map = rospy.wait_for_message("/map",OccupancyGrid)
 res = map.info.resolution
 height = map.info.height
 width = map.info.width
-conv = np.array([[1,1,1,1,1],[1,2,2,2,1],[1,2,10,2,1],[1,2,2,2,1],[1,1,1,1,1]])
+conv = np.array([[1,1,1,1,1],[1,2,2,2,1],[1,2,10,2,1],[1,2,2,2,1],[1,1,1,1,1]]) # GAUSSIAN KERNEL
 r = rospy.Rate(1)
 pub = rospy.Publisher('/path_to_goal',Path,queue_size=10)
+explore= rospy.Publisher('/path_to_goal',Path,queue_size=10)
 
 #TO CALCULATE DISTANCE BETWEEN TWO POINTS
 def dist_cal(x1,y1,x2,y2):
     dist=abs(math.sqrt(((x1-x2)**2)+((y1-y2)**2)))
     return dist
 
+#RANDOM SAMPLING
+def initializer(h):
+    init=np.random.randint([0,0],[300,670])
+    return init,h 
+
+#CONVOLUTION
 def convol(arr,conv):
     x = arr.shape[0]
     y = arr.shape[1]
@@ -49,6 +56,7 @@ def extrapolate(conv,data,val):
     a[a >= 95] = 1000
     return a
 
+#FIND A NODE IN THE EXISTING TREE WHICH IS CLOSEST TO THE RANDOM POINT
 def find_closest(c,d):
     global nodes
     N_c=np.array([c,d])
@@ -60,30 +68,7 @@ def find_closest(c,d):
     z=nodes[p]
     return z[0][0],z[0][1]
 
-def pose_cb(data,goal):  
-    global map,res,height,width,arr,r
-    print('Goal Received')
-    arr = extrapolate(conv,map,5)
-    print('Map Ready!')
-    init_x = int(data.pose.pose.position.x/res + arr.shape[0]/2)
-    init_y = int(data.pose.pose.position.y/res + arr.shape[1]/2)
-
-
-
-    goal_x = int(goal.pose.position.x/res + arr.shape[0]/2)
-    goal_y = int(goal.pose.position.y/res + arr.shape[1]/2)
-
-    print("initial",arr[init_x][init_y])
-    print('goal = ',arr[goal_x][goal_y])
-
-    begin = time()
-    print('Planning Started')
-    pub.publish(planner(arr,init_x,init_y, goal_x,goal_y))
-    end = time()
-    print('Time = ', end - begin)
-    
-    r.sleep()
-
+# TO AVOID OBSTACLES IN THE MAP
 def collision_avoidance(arr,h1,k1,h2,k2):
     g= True
     #LINEAR INTERPOLATION
@@ -97,11 +82,6 @@ def collision_avoidance(arr,h1,k1,h2,k2):
             break
 
     return g 
-
-
-def initializer(h):
-    init=np.random.randint([0,0],[300,670])
-    return init,h 
 
 #TO FIND A POINT THAT IS AT A DISTANCE d FROM THE NODE AND ALONG THE LINE JOINING THE RANDOM POINT AND THE NODE
 def find_point(a1,b1,a2,b2,d): 
@@ -120,6 +100,7 @@ def find_point(a1,b1,a2,b2,d):
 
     return int(x),int(y)
 
+# TO RETRIEVE THE FINAL PATH TO THE GOAL AFTER EXPLORATION
 def get_path(ip_x,ip_y, gp_x,gp_y, predecessors,nodes):
     global route
     route = Path()
@@ -129,6 +110,11 @@ def get_path(ip_x,ip_y, gp_x,gp_y, predecessors,nodes):
 
     m=gp_x
     n=gp_y
+    po = PoseStamped()
+    po.header = route.header
+    po.pose.position.x = res*(m - arr.shape[0]/2 )
+    po.pose.position.y = res*(n - arr.shape[1]/2 )
+    route.poses.insert(0,po)
     path=np.array([[m,n]])
     while (m!=ip_x) & (n!=ip_y):
         j=np.where((nodes[:,0]==m) & (nodes[:,1]==n))
@@ -140,12 +126,17 @@ def get_path(ip_x,ip_y, gp_x,gp_y, predecessors,nodes):
         po.header = route.header
         po.pose.position.x = res*(m - arr.shape[0]/2 )
         po.pose.position.y = res*(n - arr.shape[1]/2 )
-
-
         route.poses.insert(0,po)
- 
+    
+    po = PoseStamped()
+    po.header = route.header
+    po.pose.position.x = res*(m - arr.shape[0]/2 )
+    po.pose.position.y = res*(n - arr.shape[1]/2 )
+
+    route.poses.insert(0,po)
     return route
 
+#INITIALIZING THE FIRST NODE
 def first_node(arr,x_start,y_start):
     global nodes, parents
     shape=arr.shape
@@ -161,6 +152,7 @@ def first_node(arr,x_start,y_start):
 
     else:
         first_node(arr,x_start,y_start)
+
 
 def new_node(arr,n,g_x,g_y):
     global nodes, parents
@@ -198,6 +190,31 @@ def planner(arr,i_x,i_y,g_x,g_y):
     #RRT exploration tree
     new_node(arr,number,g_x,g_y)
     return get_path(i_x,i_y,g_x,g_y,parents,nodes)
+
+#CALLBACK FUNCTION
+def pose_cb(data,goal):  
+    global map,res,height,width,arr,r
+    print('Goal Received')
+    arr = extrapolate(conv,map,5)
+    print('Map Ready!')
+    init_x = int(data.pose.pose.position.x/res + arr.shape[0]/2)
+    init_y = int(data.pose.pose.position.y/res + arr.shape[1]/2)
+
+
+
+    goal_x = int(goal.pose.position.x/res + arr.shape[0]/2)
+    goal_y = int(goal.pose.position.y/res + arr.shape[1]/2)
+
+    print("initial",arr[init_x][init_y])
+    print('goal = ',arr[goal_x][goal_y])
+
+    begin = time()
+    print('Planning Started')
+    pub.publish(planner(arr,init_x,init_y, goal_x,goal_y))
+    end = time()
+    print('Time = ', end - begin)
+    
+    r.sleep()
 
 def main():
 
