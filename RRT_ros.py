@@ -119,7 +119,6 @@ def get_path(ip_x,ip_y, gp_x,gp_y, predecessors,nodes):
     while (m!=ip_x) & (n!=ip_y):
         j=np.where((nodes[:,0]==m) & (nodes[:,1]==n))
         z=parents[j]
-        print("hemlo")
         m=z[0][0]
         n=z[0][1]
         po = PoseStamped()
