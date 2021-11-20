@@ -12,11 +12,11 @@ I have implemented the RRT Algorithm on a .pgm file of a 2D occupancy grid map g
 ### Results:
 
 <p align="center">
-<img src="https://user-images.githubusercontent.com/64685403/142718492-33ef31c9-fb83-48a5-9385-46633dfa4bb7.png" width="400">
+<img src="https://user-images.githubusercontent.com/64685403/142731979-a7d1eb86-4296-4d39-be3b-4cb61d6e01ec.png" width="400">
 </p>
 
 <p align="center">
-<img src="https://user-images.githubusercontent.com/64685403/142722682-fbd967b1-7ea0-46df-8b13-96820912c3db.gif">
+<img src="https://user-images.githubusercontent.com/64685403/142732059-37e6662e-ff12-4ed5-9190-fd74f54d22d8.gif">
 </p>
 
 ## 2. RRT Algorithm on Sahayak
