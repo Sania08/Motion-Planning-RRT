@@ -10,8 +10,6 @@ from time import time
 
 
 global map,res,height,width,arr,r
-
-
 print('Starting...')
 rospy.init_node('RRT_algo', anonymous=True)
 map = rospy.wait_for_message("/map",OccupancyGrid)
@@ -19,7 +17,6 @@ map = rospy.wait_for_message("/map",OccupancyGrid)
 res = map.info.resolution
 height = map.info.height
 width = map.info.width
-#print("map is",res,height,width)
 conv = np.array([[1,1,1,1,1],[1,2,2,2,1],[1,2,10,2,1],[1,2,2,2,1],[1,1,1,1,1]])
 r = rospy.Rate(1)
 pub = rospy.Publisher('/path_to_goal',Path,queue_size=10)
@@ -38,10 +35,10 @@ def convol(arr,conv):
     t2 = np.ones((x,y))*100
 
     for i in range(2,x):
-        # print("one")
+
         for j in range(2,y):
             t2[i-2,j-2] = np.sum(temp[i-2:i+3,j-2:j+3]*conv)/np.sum(conv)
-            # print("two")
+
     return t2 
 
 def extrapolate(conv,data,val):
@@ -49,7 +46,6 @@ def extrapolate(conv,data,val):
     for i in range(val):
         a[a <= 5] = 5
         a = convol(a,conv)
-        print("three")
     a[a >= 95] = 1000
     return a
 
@@ -63,10 +59,6 @@ def find_closest(c,d):
     p=np.where(d[:,0]==d0)
     z=nodes[p]
     return z[0][0],z[0][1]
-
-
-# arr = extrapolate(conv,map,5)
-# print('Map Ready!')
 
 def pose_cb(data,goal):  
     global map,res,height,width,arr,r
@@ -99,7 +91,6 @@ def collision_avoidance(arr,h1,k1,h2,k2):
         t=i/20
         x=h1*t+h2*(1-t)
         y=k1*t+k2*(1-t)
-        #if arr[node_init[0],node_init[1]] == 5:
         if arr[int(x)][int(y)] ==1000:                       
             g=False
             print("g is",g)
@@ -128,6 +119,32 @@ def find_point(a1,b1,a2,b2,d):
         x,y=x2,y2
 
     return int(x),int(y)
+
+def get_path(ip_x,ip_y, gp_x,gp_y, predecessors,nodes):
+    global route
+    route = Path()
+    route.header.seq = 1
+    route.header.stamp = rospy.Time.now()
+    route.header.frame_id = 'map'
+
+    m=gp_x
+    n=gp_y
+    path=np.array([[m,n]])
+    while (m!=ip_x) & (n!=ip_y):
+        j=np.where((nodes[:,0]==m) & (nodes[:,1]==n))
+        z=parents[j]
+        print("hemlo")
+        m=z[0][0]
+        n=z[0][1]
+        po = PoseStamped()
+        po.header = route.header
+        po.pose.position.x = res*(m - arr.shape[0]/2 )
+        po.pose.position.y = res*(n - arr.shape[1]/2 )
+
+
+        route.poses.insert(0,po)
+ 
+    return route
 
 def first_node(arr,x_start,y_start):
     global nodes, parents
@@ -180,6 +197,7 @@ def planner(arr,i_x,i_y,g_x,g_y):
 
     #RRT exploration tree
     new_node(arr,number,g_x,g_y)
+    return get_path(i_x,i_y,g_x,g_y,parents,nodes)
 
 def main():
 
